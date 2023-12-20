@@ -1,0 +1,46 @@
+version: '3.9'
+services:
+  haproxy:
+    image: haproxy
+    container_name: haproxy
+    volumes:
+      - ./web:/usr/local/etc/haproxy:ro
+    ports:
+      - 80:80
+    links:
+      - web
+      - con1
+      - con2
+  web:
+    image: nginx
+    container_name: nginx
+    restart: always
+    volumes: 
+      - ./web:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf 
+      - ./certs:/etc/ssl/certs/nginx
+      - /var/log/nginx:/var/log/nginx
+    ports:
+      - 8080:80
+    links:
+      - con1
+      - con2
+    command: /bin/bash -c "nginx -g 'daemon off;'"
+  con1:
+    image: nginx
+    container_name: con1
+    restart: always
+    volumes: 
+      - ./con1.html:/usr/share/nginx/html/index.html
+    ports:
+      - 81:80
+    command: /bin/bash -c "nginx -g 'daemon off;'"
+  con2:
+    image: nginx
+    container_name: con2
+    restart: always
+    volumes: 
+      - ./con2.html:/usr/share/nginx/html/index.html
+    ports:
+      - 82:80
+    command: /bin/bash -c "nginx -g 'daemon off;'"
